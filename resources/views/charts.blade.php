@@ -1,126 +1,163 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Fitness Gym Tracker - Charts</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+    <style>
+        body {
+            background-color: #121212;
+            color: #eee;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .header-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            color: #f0a500;
+            text-transform: uppercase;
+        }
+        .card {
+            background: #1e1e1e;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            height: 100%;
+        }
+        h2 {
+            font-weight: 700;
+            color: #f0a500;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        canvas {
+            max-height: 250px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="header-title">Fitness Gym Tracker</div>
 
-        <title>Our Charts</title>
-
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
-
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-
-
-    </head>
-    <body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
-        <header class="w-full lg:max-w-4xl max-w-[335px] text-sm mb-6 not-has-[nav]:hidden">
-            @if (Route::has('login'))
-                <nav class="flex items-center justify-end gap-4">
-                    @auth
-                        <a
-                            href="{{ url('/dashboard') }}"
-                            class="inline-block px-5 py-1.5 dark:text-[#EDEDEC] border-[#19140035] hover:border-[#1915014a] border text-[#1b1b18] dark:border-[#3E3E3A] dark:hover:border-[#62605b] rounded-sm text-sm leading-normal"
-                        >
-                            Dashboard
-                        </a>
-                    @else
-                        <a
-                            href="{{ route('login') }}"
-                            class="inline-block px-5 py-1.5 dark:text-[#EDEDEC] text-[#1b1b18] border border-transparent hover:border-[#19140035] dark:hover:border-[#3E3E3A] rounded-sm text-sm leading-normal"
-                        >
-                            Log in
-                        </a>
-
-                        @if (Route::has('register'))
-                            <a
-                                href="{{ route('register') }}"
-                                class="inline-block px-5 py-1.5 dark:text-[#EDEDEC] border-[#19140035] hover:border-[#1915014a] border text-[#1b1b18] dark:border-[#3E3E3A] dark:hover:border-[#62605b] rounded-sm text-sm leading-normal">
-                                Register
-                            </a>
-                        @endif
-                    @endauth
-                </nav>
-            @endif
-        </header>
-        <div class="flex items-center justify-center w-full transition-opacity opacity-100 duration-750 lg:grow starting:opacity-0">
-
-
-                <div class="container">
-
-                    <div class="row mt-2">
-                        <div class="col-md-6">
-                            <h2 class="text-center">Pie Charts</h2>
-                            <canvas id="pieChart" height="100"></canvas>
-                        </div>
-
-                        <div class="col-md-6">
-                            <h2 class="text-center">Doughnut Charts</h2>
-                            <canvas id="doughnutChart" height="100"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="row mt-2">
-                        <div class="col-md-6">
-                            <h2 class="text-center">Bar Charts</h2>
-                            <canvas id="barChart" height="100"></canvas>
-                        </div>
-
-                        <div class="col-md-6">
-                            <h2 class="text-center">Line Charts</h2>
-                            <canvas id="lineChart" height="100"></canvas>
-                        </div>
-                    </div>
-
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <h2>Users by Role</h2>
+                    <canvas id="usersChart"></canvas>
                 </div>
-
-
-            </main>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <h2>Exercises by Type</h2>
+                    <canvas id="exercisesChart"></canvas>
+                </div>
+            </div>
         </div>
 
-        @if (Route::has('login'))
-            <div class="h-14.5 hidden lg:block"></div>
-        @endif
-    </body>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <h2>Workout Logs per Day</h2>
+                    <canvas id="workoutLogsChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <h2>Workouts per Week</h2>
+                    <canvas id="workoutsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const labels = {!! json_encode($labels) !!};
-        const data = {!! json_encode($data) !!};
+        const colors = [
+            '#f87171', '#60a5fa', '#facc15', '#34d399', '#a78bfa', '#fbbf24', '#4ade80', '#f472b6'
+        ];
 
-        const config = (type) => ({
-            type: type,
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Users',
-                    data: data,
-                    backgroundColor: [
-                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
-                        '#9966FF', '#FF9F40', '#66BB6A', '#EF5350'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    }
+        function createChartConfig(type, labels, data, label) {
+            return {
+                type: type,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: data,
+                        backgroundColor: colors,
+                        borderColor: '#222',
+                        borderWidth: 1,
+                        fill: type === 'line' ? false : true,
+                        tension: type === 'line' ? 0.4 : 0,
+                        pointRadius: type === 'line' ? 6 : 0,
+                        pointHoverRadius: type === 'line' ? 8 : 0,
+                    }]
                 },
-                scales: type === 'pie' || type === 'doughnut' ? {} : {
-                    y: {
-                        beginAtZero: true
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#eee',
+                                font: {
+                                    weight: 'bold',
+                                    size: 14
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#333',
+                            titleColor: '#f0a500',
+                            bodyColor: '#eee',
+                            cornerRadius: 6,
+                        }
+                    },
+                    scales: type === 'pie' || type === 'doughnut' || type === 'polarArea' ? {} : {
+                        x: {
+                            ticks: {
+                                color: '#eee',
+                                font: { size: 14 }
+                            },
+                            grid: {
+                                color: '#333'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#eee',
+                                font: { size: 14 }
+                            },
+                            grid: {
+                                color: '#333'
+                            }
+                        }
                     }
                 }
-            }
-        });
+            };
+        }
 
-        new Chart(document.getElementById('barChart'), config('bar'));
-        new Chart(document.getElementById('lineChart'), config('line'));
-        new Chart(document.getElementById('pieChart'), config('pie'));
-        new Chart(document.getElementById('doughnutChart'), config('doughnut'));
+        const usersLabels = ['Member', 'Trainer', 'Admin'];
+        const usersData = [120, 15, 5];
+
+        const exercisesLabels = ['Cardio', 'Strength', 'Flexibility', 'Balance'];
+        const exercisesData = [30, 50, 10, 5];
+
+        const workoutLogsLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        const workoutLogsData = [20, 25, 30, 28, 24, 18, 15];
+
+        const workoutsLabels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+        const workoutsData = [12, 15, 18, 20];
+
+        new Chart(document.getElementById('usersChart'), createChartConfig('doughnut', usersLabels, usersData, 'Users by Role'));
+        new Chart(document.getElementById('exercisesChart'), createChartConfig('polarArea', exercisesLabels, exercisesData, 'Exercises by Type'));
+        new Chart(document.getElementById('workoutLogsChart'), createChartConfig('bar', workoutLogsLabels, workoutLogsData, 'Workout Logs per Day'));
+        new Chart(document.getElementById('workoutsChart'), createChartConfig('line', workoutsLabels, workoutsData, 'Workouts per Week'));
     </script>
+</body>
 </html>
