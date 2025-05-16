@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('exercises', function (Blueprint $table) {
-            $table->id();
+             $table->id();
             $table->string('name'); // e.g., "Push Ups"
             $table->string('type'); // cardio or strength
             $table->integer('calories_burned_per_minute');
