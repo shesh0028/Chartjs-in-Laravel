@@ -10,41 +10,28 @@ class GymSeeder extends Seeder
 {
     public function run()
     {
-        // Users
-        $user = User::create([
-            'name' => 'John Doe',
-            'email' => 'john@example.com',
-            'age' => 28,
-            'gender' => 'male',
-        ]);
+        // Create 2 users
+        $users = User::factory()->count(2)->create();
 
-        // Workouts
-        $workout = Workout::create([
-            'title' => 'Full Body Blast',
-            'description' => 'A high-intensity full-body workout.',
-            'difficulty' => 'hard',
-            'duration' => 45,
-        ]);
+        // Create 2 workouts
+        $workouts = Workout::factory()->count(2)->create();
 
-        // Exercises
+        // Insert 3 exercises
         Exercise::insert([
             ['name' => 'Jumping Jacks', 'type' => 'cardio', 'calories_burned_per_minute' => 8],
             ['name' => 'Push Ups', 'type' => 'strength', 'calories_burned_per_minute' => 7],
             ['name' => 'Burpees', 'type' => 'cardio', 'calories_burned_per_minute' => 10],
         ]);
 
-        // Workout Logs
-        WorkoutLog::create([
-            'user_id' => $user->id,
-            'workout_id' => $workout->id,
-            'date' => now(),
-            'duration' => 45,
-            'notes' => 'Very intense, felt great afterward.',
-        ]);
-
-        // Add more entries
-        User::factory()->count(2)->create();
-        Workout::factory()->count(2)->create();
-        Exercise::factory()->count(2)->create();
+        // Create 3 workout logs
+        foreach (range(0, 2) as $i) {
+            WorkoutLog::create([
+                'user_id' => $users[$i % 2]->id,
+                'workout_id' => $workouts[$i % 2]->id,
+                'date' => now()->subDays($i),
+                'duration' => 30 + ($i * 5),
+                'notes' => 'Log ' . ($i + 1),
+            ]);
+        }
     }
 }
